@@ -8,11 +8,11 @@ import numpy as np
 
 
 def distance(l1, l2):
-    return (l1[0]-l2[0])**2 + (l1[1]-l2[1])**2
+    return int((l1[0]-l2[0])**2 + (l1[1]-l2[1])**2)
 
 def gen_distance_map(p, map):
     path = map.path
-    p.dist_map = np.ones((p.map.width, p.map.height)) * 1000
+    p.dist_map = np.ones((p.map.width, p.map.height), dtype=int) * 1000
     for loc in path:
         for x in range(p.dist_map.shape[0]):
             for y in range(p.dist_map.shape[1]):
