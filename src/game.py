@@ -56,7 +56,8 @@ class Game:
             self.game_name,
             self.map,
             blue_bot_name,
-            red_bot_name
+            red_bot_name,
+            output_replay = output_replay
         )
 
         # initialize controllers
