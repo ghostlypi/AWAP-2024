@@ -58,11 +58,27 @@ class BotPlayer(Player):
         if len(keys) > 0:
             if self.next_build <= self.spawn_dist[0]:
                 if rc.get_balance(rc.get_ally_team()) >= 1800:
-                    (k,(x,y)) = best_coverage(self, self.map, 2)
-                    if (rc.can_build_tower(TowerType.BOMBER, x, y)):
-                        rc.build_tower(TowerType.BOMBER, x, y)
-                        self.remove_dist_dict_item(k,(x,y))
-                        self.iter_build()
+                    top_coord = best_coverage(self, self.map, 2)
+                    if top_coord is not None:
+                        (k,(x,y)) = top_coord
+                        if (rc.can_build_tower(TowerType.BOMBER, x, y)):
+                            rc.build_tower(TowerType.BOMBER, x, y)
+                            self.remove_dist_dict_item(k,(x,y))
+                            self.iter_build()
+                    else:
+                        for i in range(2, int(max(keys))):
+                            if i in keys:
+                                k = i
+                                break
+                        if k is None:
+                            self.iter_build()
+                        for loc in self.dist_dict[k]:
+                            x,y = loc
+                            if rc.can_build_tower(TowerType.BOMBER, x, y):
+                                rc.build_tower(TowerType.BOMBER, x, y)
+                                self.remove_dist_dict_item(k, loc)
+                                self.iter_build()
+                                break
             if not added and self.spawn_dist[0] < self.next_build and self.next_build <= self.spawn_dist[1]:
                 k = None
                 for i in range(2, int(max(keys))):
