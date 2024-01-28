@@ -5,7 +5,7 @@ from src.game_constants import TowerType, Team, Tile, GameConstants, SnipePriori
 from src.debris import Debris
 from src.tower import Tower
 import numpy as np
-from bots.our_lib import gen_distance_map, sort_distance_map, best_coverage
+from bots.our_lib import gen_distance_map, sort_distance_map, best_coverage, distance
 import random
 
 
@@ -25,12 +25,17 @@ class BotPlayer(Player):
     def __init__(self, map: Map):
         self.map = map
         self.sniper_offset = 0
+        self.bt = []
         gen_distance_map(self, map)
         sort_distance_map(self)
         for k in list(self.dist_dict.keys()):
             random.shuffle(self.dist_dict[k])
         self.next_build = 0
         pass
+    
+    def bt_test(self, x):
+        f = lambda p: distance(p,x)
+        return max(list(map(f, self.bt))) < 5**2
 
     def iter_build(self):
         self.next_build += 1
@@ -56,25 +61,14 @@ class BotPlayer(Player):
         #print(self.next_build)
         if len(keys) > 0:
             if self.next_build == 0:
-                '''
-                if keys[0] > 1:
-                    self.next_build = 1
-                else: 
-                    k = 1
-                    for loc in self.dist_dict[k]:
-                        x,y = loc
-                        if rc.can_build_tower(TowerType.BOMBER, x, y):
-                            rc.build_tower(TowerType.BOMBER, x, y)
-                            self.remove_dist_dict_item(k, loc)
-                            self.iter_build()
-                            break'''
-                self.build = TowerType.BOMBER
                 if rc.get_balance(rc.get_ally_team()) >= 1800:
                     (k,(x,y)) = best_coverage(self, self.map, 10)
-                    if (rc.can_build_tower(self.build, x, y)):
-                        rc.build_tower(self.build, x, y)
+                    if self.bt_test((x,y)):
+                        self.remove_dist_dict_item(k, (x,y))
+                        self.iter_build()
+                    elif (rc.can_build_tower(TowerType.BOMBER, x, y)):
+                        rc.build_tower(TowerType.BOMBER, x, y)
                         self.remove_dist_dict_item(k,(x,y))
-                        #self.build = TowerType.SOLAR_FARM
                         self.iter_build()
             if self.next_build == 1:
                 k = None
