@@ -23,7 +23,7 @@ def import_file(module_name, file_path):
     return module
 
 class Game:
-    def __init__(self, blue_path: str, red_path: str, map_path: str, output_replay=False, render=False):
+    def __init__(self, blue_path: str, red_path: str, map_path: str, output_replay=False, render=False, large=False):
         self.output_replay = output_replay
         self.render = render
 
@@ -31,7 +31,7 @@ class Game:
         self.map = Map(map_path)
 
         # initialize game_state
-        self.gs = GameState(self.map)
+        self.gs = GameState(self.map, large)
 
         # initialize players
         self.blue_failed_init = False
@@ -56,7 +56,8 @@ class Game:
             self.game_name,
             self.map,
             blue_bot_name,
-            red_bot_name
+            red_bot_name,
+            output_replay
         )
 
         # initialize controllers
