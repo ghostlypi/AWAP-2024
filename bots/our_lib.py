@@ -29,3 +29,33 @@ def sort_distance_map(p):
             else:
                 p.dist_dict[d] = [(x,y)]
     del p.dist_dict[1000.0]
+    
+def init_distance_map(p,map):
+    gen_distance_map(p,map)
+    sort_distance_map(p)
+
+def coverage(map,
+             point : tuple[int, int],
+             dist : int
+            ):
+    path = map.path
+    acc = 0
+    for loc in path:
+        acc += 1 if distance(loc, point) <= (dist**2) else 0     
+    return acc
+
+def best_coverage(p, map,
+                  dist : int
+                ):
+    top_coords = None
+    top_c = 0
+    top_i = None
+    for i in p.dist_dict.keys():
+        if i < dist:
+            for x in p.dist_dict[i]:
+                c = coverage(map, x, dist)
+                if c > top_c:
+                    top_coords = x
+                    top_c = c
+    
+    return top_coords
