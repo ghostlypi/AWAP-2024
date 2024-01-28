@@ -178,7 +178,6 @@ class BotPlayer(Player):
                         self.iter_build()
                         noSolarAvail = True
             else:
-                print(f'{len(keys)}')
                 self.update_towers(rc, rc.get_towers(rc.get_ally_team()))
 
             if noBombAvail and noGunshipAvail and noSolarAvail:
