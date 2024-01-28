@@ -8,9 +8,8 @@ from src.map import Map
 from src.debris import Debris
 
 class GameState:
-    def __init__(self, map: Map, large):
+    def __init__(self, map: Map):
         self.map = map
-        self.large = large
         self.towers = {Team.BLUE: {}, Team.RED: {}}
         self.debris = {Team.BLUE: {}, Team.RED: {}}
         self.time_remaining = {Team.BLUE: GameConstants.INITIAL_TIME_POOL, Team.RED: GameConstants.INITIAL_TIME_POOL}
@@ -84,7 +83,6 @@ class GameState:
         return GameConstants.REINFORCER_COOLDOWN_MULTIPLIER**num_reinforcers
 
     def render(self):
-        scale = 5 if self.large else 2
         import pygame
         import pygame.font as font
 
@@ -92,7 +90,7 @@ class GameState:
             self.has_rendered = True
             pygame.init()
             pygame.display.set_caption("GameState visualizer")
-            self.tile_size = 10 * scale
+            self.tile_size = 20
             self.screen = pygame.display.set_mode((self.map.width*2 * self.tile_size, self.map.height * self.tile_size))
         
         # For performance
@@ -144,8 +142,8 @@ class GameState:
                 else:
                     innercolor = (255, 51, 153)
 
-                pygame.draw.circle(self.screen, color, center, 6*scale)
-                pygame.draw.circle(self.screen, innercolor, center, 4*scale)
+                pygame.draw.circle(self.screen, color, center, 6)
+                pygame.draw.circle(self.screen, innercolor, center, 4)
                 
         
         # Draw debris as text indicating number of debris on that tile
@@ -162,7 +160,7 @@ class GameState:
                 for y in range(self.map.height):
                     if counts[team][x][y] == 0:
                         continue
-                    text = font.SysFont('Comic Sans MS', 10 * scale).render(str(counts[team][x][y]), True, (255, 255, 255))
+                    text = font.SysFont('Comic Sans MS', 10).render(str(counts[team][x][y]), True, (255, 255, 255))
                     ((left, top), (width, height)) = get_screen_coords(team, x, y)
                     center = (left + width/2, top + height/2)
                     text_rect = text.get_rect(center=center)
@@ -188,8 +186,7 @@ class GameState:
                     self.screen,
                     (0, 0, 255) if team == Team.BLUE else (255, 0, 0),
                     tower_center,
-                    debris_center,
-                    width = 5
+                    debris_center
                 )
         
         # Draw sprays as circles
@@ -207,25 +204,25 @@ class GameState:
                 )
 
         # Draw turn number in bottom left
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Turn: {self.turn}", True, (255, 255, 255))
-        self.screen.blit(text, ((2, self.screen.get_height()-40), (self.screen.get_width()//2, 20)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Turn: {self.turn}", True, (255, 255, 255))
+        self.screen.blit(text, ((2, self.screen.get_height()-20), (self.screen.get_width()//2, 20)))
 
         # Draw each team's balance
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Balance: {self.balance[Team.BLUE]}", True, (255, 255, 255))
-        self.screen.blit(text, ((2, 0), (self.screen.get_width()//2, 40)))
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Balance: {self.balance[Team.RED]}", True, (255, 255, 255))
-        self.screen.blit(text, ((self.screen.get_width()//2+2, 0), (self.screen.get_width()//2, 40)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Balance: {self.balance[Team.BLUE]}", True, (255, 255, 255))
+        self.screen.blit(text, ((2, 0), (self.screen.get_width()//2, 20)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Balance: {self.balance[Team.RED]}", True, (255, 255, 255))
+        self.screen.blit(text, ((self.screen.get_width()//2+2, 0), (self.screen.get_width()//2, 20)))
 
         # Draw each team's health
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Health: {self.health[Team.BLUE]}", True, (255, 255, 255))
-        self.screen.blit(text, ((2, 40), (self.screen.get_width()//2, 80)))
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Health: {self.health[Team.RED]}", True, (255, 255, 255))
-        self.screen.blit(text, ((self.screen.get_width()//2+2, 40), (self.screen.get_width()//2, 80)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Health: {self.health[Team.BLUE]}", True, (255, 255, 255))
+        self.screen.blit(text, ((2, 20), (self.screen.get_width()//2, 40)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Health: {self.health[Team.RED]}", True, (255, 255, 255))
+        self.screen.blit(text, ((self.screen.get_width()//2+2, 20), (self.screen.get_width()//2, 40)))
 
         # Draw each team's time remaining
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Time: {self.time_remaining[Team.BLUE]: .2f}", True, (255, 255, 255))
-        self.screen.blit(text, ((2, 80), (self.screen.get_width()//2, 120)))
-        text = font.SysFont('Comic Sans MS', 10 * scale).render(f"Time: {self.time_remaining[Team.RED]: .2f}", True, (255, 255, 255))
-        self.screen.blit(text, ((self.screen.get_width()//2+2, 80), (self.screen.get_width()//2, 120)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Time: {self.time_remaining[Team.BLUE]: .2f}", True, (255, 255, 255))
+        self.screen.blit(text, ((2, 40), (self.screen.get_width()//2, 60)))
+        text = font.SysFont('Comic Sans MS', 10).render(f"Time: {self.time_remaining[Team.RED]: .2f}", True, (255, 255, 255))
+        self.screen.blit(text, ((self.screen.get_width()//2+2, 40), (self.screen.get_width()//2, 60)))
 
         pygame.display.update()

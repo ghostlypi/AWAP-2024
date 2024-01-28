@@ -61,8 +61,7 @@ class Replay:
             game_name: str,
             map: Map,
             blue_bot: str,
-            red_bot: str,
-            output_replay: bool
+            red_bot: str
     ):
         self.metadata = ReplayMetadata(
             game_name=game_name,
@@ -76,7 +75,6 @@ class Replay:
             scores=[0.0, 0.0]
         )
         self.turns = []
-        self.output_replay = output_replay
 
     def add_turn(self, gs: GameState):
         turn = ReplayTurn(
@@ -150,9 +148,8 @@ class Replay:
             self.metadata.scores = [0.0, 1.0]
 
     def write_json(self):
-        if self.output_replay:
-            res = {
-                "metadata": self.metadata.__dict__,
-                "turns": self.turns
-            }
-            compress_json.dump(res, f"replays/{self.metadata.game_name}.awap24r.gz")
+        res = {
+            "metadata": self.metadata.__dict__,
+            "turns": self.turns
+        }
+        compress_json.dump(res, f"replays/{self.metadata.game_name}.awap24r.gz")
