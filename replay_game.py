@@ -29,7 +29,7 @@ else:
 map_name = replay['metadata']['map_name']
 map_path = f"maps/{map_name}.awap24m"
 map = Map(map_path)
-gs = GameState(map)
+gs = GameState(map, True) # Set this to False for normal UI
     
 def get_tower(team, json_tower):
     id = json_tower['id']

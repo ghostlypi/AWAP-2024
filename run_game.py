@@ -12,6 +12,7 @@ def main():
     parser.add_argument("-c", "--config_file", type=str, required=False)
     parser.add_argument("--render", action="store_true", help="Whether or not to display the game while it is running")
     parser.add_argument("--replay", action="store_true", help="Whether or not to store the replay")
+    parser.add_argument("--large", action="store_true", help="Whether or not to display the larger window")
     args = parser.parse_args()
 
     if args.config_file:
@@ -31,7 +32,8 @@ def main():
         red_path=red_path,
         map_path=map_path,
         render=args.render,
-        output_replay=args.replay
+        output_replay=args.replay,
+        large = args.large
     )
     winner = game.run_game()
     print(f"Winner: {winner}")
