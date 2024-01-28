@@ -57,7 +57,6 @@ class BotPlayer(Player):
     def build_towers(self, rc: RobotController):
         #available = self.getSurroundingPath(rc, self.map.path)
         keys = sorted(list(self.dist_dict.keys()))
-        print(self.next_build)
         if len(keys) > 0:
             if self.next_build == 0:
                 if keys[0] > 1:

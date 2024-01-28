@@ -26,6 +26,7 @@ class BotPlayer(Player):
         self.map = map
         self.sniper_offset = 0
         self.bt = []
+        self.gr = []
         gen_distance_map(self, map)
         sort_distance_map(self)
         for k in list(self.dist_dict.keys()):
@@ -34,8 +35,19 @@ class BotPlayer(Player):
         pass
     
     def bt_test(self, x):
-        f = lambda p: distance(p,x)
-        return max(list(map(f, self.bt))) < 5**2
+        if len(self.bt) > 0:
+            f = lambda p: distance(p,x)
+            return max(list(map(f, self.bt))) < 5**2
+        else:
+            return False
+    
+    def gr_test(self, x):
+        if len(self.gr) > 0:
+            f = lambda p: distance(p,x)
+            return max(list(map(f, self.gr))) < 3**2
+        else:
+            return False
+            
 
     def iter_build(self):
         self.next_build += 1
@@ -65,28 +77,22 @@ class BotPlayer(Player):
                     (k,(x,y)) = best_coverage(self, self.map, 10)
                     if self.bt_test((x,y)):
                         self.remove_dist_dict_item(k, (x,y))
-                        self.iter_build()
                     elif (rc.can_build_tower(TowerType.BOMBER, x, y)):
                         rc.build_tower(TowerType.BOMBER, x, y)
                         self.remove_dist_dict_item(k,(x,y))
+                        self.bt.append((x,y))
                         self.iter_build()
             if self.next_build == 1:
-                k = None
-                for i in range(2, int(max(keys))):
-                    if i in keys:
-                        k = i
-                        break
-                if k is None:
-                    self.iter_build()
-                for loc in self.dist_dict[k]:
-                    x,y = loc
-                    if rc.can_build_tower(TowerType.GUNSHIP, x, y):
+                if rc.get_balance(rc.get_ally_team()) >= 1000:
+                    (k,(x,y)) = best_coverage(self, self.map, 60, 8)
+                    if self.gr_test((x,y)):
+                        self.remove_dist_dict_item(k, (x,y))
+                    elif rc.can_build_tower(TowerType.GUNSHIP, x, y):
                         rc.build_tower(TowerType.GUNSHIP, x, y)
-                        self.remove_dist_dict_item(k, loc)
+                        self.remove_dist_dict_item(k, (x,y))
+                        self.gr.append((x,y))
                         self.iter_build()
-                        break
             if self.next_build == 2:
-                
                 k = None
                 for i in range(int(max(keys)-1), 2, -1):
                     if i in keys:
@@ -108,7 +114,7 @@ class BotPlayer(Player):
         towers = rc.get_towers(rc.get_ally_team())
         for tower in towers:
             if tower.type == TowerType.GUNSHIP:
-                rc.auto_snipe(tower.id, SnipePriority.FIRST)
+                rc.auto_snipe(tower.id, SnipePriority.STRONG)
             elif tower.type == TowerType.BOMBER:
                 rc.auto_bomb(tower.id)
 

@@ -32,7 +32,6 @@ class BotPlayer(Player):
         elif self.build == TowerType.BOMBER:
             if rc.get_balance(rc.get_ally_team()) >= 1800:
                 (k,(x,y)) = best_coverage(self, self.map, 10)
-                print(x,y, end='\r')
                 if (rc.can_build_tower(self.build, x, y)):
                     rc.build_tower(self.build, x, y)
                     self.remove_dist_dict_item(k,(x,y))

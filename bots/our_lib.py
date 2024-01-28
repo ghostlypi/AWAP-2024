@@ -45,13 +45,13 @@ def coverage(map,
     return acc
 
 def best_coverage(p, map,
-                  dist : int
+                  dist : int,
+                  min = 0
                 ):
     top_coords = None
     top_c = 0
-    top_i = None
     for i in p.dist_dict.keys():
-        if i < dist:
+        if (i > min) and (i < dist):
             for x in p.dist_dict[i]:
                 c = coverage(map, x, dist)
                 if c > top_c:
