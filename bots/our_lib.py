@@ -55,7 +55,7 @@ def best_coverage(p, map,
             for x in p.dist_dict[i]:
                 c = coverage(map, x, dist)
                 if c > top_c:
-                    top_coords = x
+                    top_coords = (i,x)
                     top_c = c
     
     return top_coords
