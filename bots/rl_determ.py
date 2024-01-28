@@ -63,14 +63,20 @@ def best_coverage(p, map,
 class BotPlayer(Player):
     def __init__(self, map: Map):
         self.bot = None
-        if len(map.path) > 95:
-            self.bot = BotPlayerDeterm(map)
-        else:
-            self.bot = BotPlayerRL(map)
-        #self.bot = BotPlayerRL(map)
+        self.rl_bot = BotPlayerRL(map)
+        self.determ = BotPlayerDeterm(map)
+        self.rl = True
+        if len(map.path) > 90:
+            self.rl = False
 
     def play_turn(self, rc: RobotController):
-        self.bot.play_turn(rc)
+        if rc.get_health(rc.get_ally_team()) < rc.get_health(rc.get_enemy_team()):
+            self.determ.play_turn(rc)
+        else:
+            if self.rl:
+                self.rl_bot.play_turn(rc)
+            else:
+                self.determ.play_turn(rc)
 
 class BotPlayerDeterm(Player):
     def __init__(self, map: Map):
