@@ -69,7 +69,6 @@ def best_coverage(p, map,
     
     return top_coords
 
-
 class BotPlayer(Player):
 
     def getSurroundingPath(self, rc, path):
@@ -91,8 +90,9 @@ class BotPlayer(Player):
             random.shuffle(self.dist_dict[k])
         self.next_build = 0
         #self.spawn_dist = [1, 3, 7]
-        self.spawn_dist = [1, 3, 7]
-        pass
+        self.spawn_dist = [0, 3, 7]
+        
+        
 
     def iter_build(self):
         self.next_build += 1
@@ -115,7 +115,6 @@ class BotPlayer(Player):
     def build_towers(self, rc: RobotController):
         #available = self.getSurroundingPath(rc, self.map.path)
         keys = sorted(list(self.dist_dict.keys()))
-        #print(self.next_build)
         added = False
         if len(keys) > 0:
             if self.next_build <= self.spawn_dist[0]:
@@ -127,51 +126,68 @@ class BotPlayer(Player):
                             rc.build_tower(TowerType.BOMBER, x, y)
                             self.remove_dist_dict_item(k,(x,y))
                             self.iter_build()
+                            added = True
                     else:
+                        k = None
                         for i in range(2, int(max(keys))):
                             if i in keys:
                                 k = i
                                 break
-                        if k is None:
+                        if k is not None:
+                            for loc in self.dist_dict[k]:
+                                x,y = loc
+                                if rc.can_build_tower(TowerType.BOMBER, x, y):
+                                    rc.build_tower(TowerType.BOMBER, x, y)
+                                    self.remove_dist_dict_item(k, loc)
+                                    self.iter_build()
+                                    added = True
+                                    break
+                        else:
                             self.iter_build()
-                        for loc in self.dist_dict[k]:
-                            x,y = loc
-                            if rc.can_build_tower(TowerType.BOMBER, x, y):
-                                rc.build_tower(TowerType.BOMBER, x, y)
-                                self.remove_dist_dict_item(k, loc)
-                                self.iter_build()
-                                break
             if not added and self.spawn_dist[0] < self.next_build and self.next_build <= self.spawn_dist[1]:
-                k = None
-                for i in range(2, int(max(keys))):
-                    if i in keys:
-                        k = i
-                        break
-                if k is None:
-                    self.iter_build()
-                for loc in self.dist_dict[k]:
-                    x,y = loc
-                    if rc.can_build_tower(TowerType.GUNSHIP, x, y):
-                        rc.build_tower(TowerType.GUNSHIP, x, y)
-                        self.remove_dist_dict_item(k, loc)
-                        self.iter_build()
-                        break
+                if rc.get_balance(rc.get_ally_team()) >= 1000:
+                    top_coord = best_coverage(self, self.map, 60)
+                    if top_coord is not None:
+                        (k,(x,y)) = top_coord
+                        if (rc.can_build_tower(TowerType.GUNSHIP, x, y)):
+                            rc.build_tower(TowerType.GUNSHIP, x, y)
+                            self.remove_dist_dict_item(k,(x,y))
+                            self.iter_build()
+                            added = True
+                    else:
+                        k = None
+                        for i in range(1, int(max(keys))):
+                            if i in keys:
+                                k = i
+                                break
+                        if k is not None:
+                            for loc in self.dist_dict[k]:
+                                x,y = loc
+                                if rc.can_build_tower(TowerType.GUNSHIP, x, y):
+                                    rc.build_tower(TowerType.GUNSHIP, x, y)
+                                    self.remove_dist_dict_item(k, loc)
+                                    added = True
+                                    self.iter_build()
+                                    break
+                        else:
+                            self.iter_build()
             if not added and self.spawn_dist[1] < self.next_build and self.next_build <= self.spawn_dist[2]:
                 k = None
-                for i in range(int(max(keys)-1), 2, -1):
+                for i in range(int(max(keys)-1), 0, -1):
                     if i in keys:
                         k = i
                         break
-                if k is None:
+                if k is not None:
+                    for loc in self.dist_dict[k]:
+                        x,y = loc
+                        if rc.can_build_tower(TowerType.SOLAR_FARM, x, y):
+                            rc.build_tower(TowerType.SOLAR_FARM, x, y)
+                            self.remove_dist_dict_item(k, loc)
+                            self.iter_build()
+                            added = True
+                            break
+                else:
                     self.iter_build()
-                for loc in self.dist_dict[k]:
-                    x,y = loc
-                    if rc.can_build_tower(TowerType.SOLAR_FARM, x, y):
-                        rc.build_tower(TowerType.SOLAR_FARM, x, y)
-                        self.remove_dist_dict_item(k, loc)
-                        self.iter_build()
-                        added = True
-                        break
                 
         
     def towers_attack(self, rc: RobotController):
@@ -181,5 +197,4 @@ class BotPlayer(Player):
                 rc.auto_snipe(tower.id, SnipePriority.STRONG)
             elif tower.type == TowerType.BOMBER:
                 rc.auto_bomb(tower.id)
-
 
