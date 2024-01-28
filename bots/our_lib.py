@@ -28,7 +28,7 @@ def sort_distance_map(p):
                 p.dist_dict[d].append((x,y))
             else:
                 p.dist_dict[d] = [(x,y)]
-    del p.dist_dict[1000.0]
+    del p.dist_dict[1000]
     
 def init_distance_map(p,map):
     gen_distance_map(p,map)
