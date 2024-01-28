@@ -29,7 +29,7 @@ class BotPlayer(Player):
             random.shuffle(self.dist_dict[k])
         self.next_build = 0
         #self.spawn_dist = [1, 3, 7]
-        self.spawn_dist = [3, 6, 7]
+        self.spawn_dist = [0, 3, 4, 7]
         self.n_towers = []
         self.sold_solar = False
         self.debris_costs = dict()
@@ -138,12 +138,29 @@ class BotPlayer(Player):
                                         break
                             else:
                                 self.iter_build()
+                elif self.spawn_dist[2] < self.next_build and self.next_build <= self.spawn_dist[3]:
+                    k = None
+                    for i in range(int(max(keys)-1), 0, -1):
+                        if i in keys:
+                            k = i
+                            break
+                    if k is not None:
+                        for loc in self.dist_dict[k]:
+                            x,y = loc
+                            if rc.can_build_tower(TowerType.SOLAR_FARM, x, y):
+                                rc.build_tower(TowerType.SOLAR_FARM, x, y)
+                                self.remove_dist_dict_item(k, loc)
+                                self.iter_build()
+                                break
+                    else:
+                        self.iter_build()
             else:
                 print(f'{len(keys)}')
                 self.update_towers(rc, rc.get_towers(rc.get_ally_team()))
         
         keys = sorted(list(self.dist_dict.keys()))
-        if len(keys) > 0:   
+        if len(keys) > 0:
+            print(len(keys), end='\r')
             (cooldown, health) = self.get_debris(rc.get_balance(rc.get_ally_team())-4000)
         else:
             (cooldown, health) = self.get_debris(rc.get_balance(rc.get_ally_team()))
