@@ -25,21 +25,12 @@ class BotPlayer(Player):
     def __init__(self, map: Map):
         self.map = map
         self.sniper_offset = 0
-        self.bt = []
-        self.gr = []
         gen_distance_map(self, map)
         sort_distance_map(self)
         for k in list(self.dist_dict.keys()):
             random.shuffle(self.dist_dict[k])
         self.next_build = 0
         pass
-    
-    def bt_test(self, x):
-        if len(self.bt) > 0:
-            f = lambda p: distance(p,x)
-            return max(list(map(f, self.bt))) < 5**2
-        else:
-            return False
 
     def iter_build(self):
         self.next_build += 1
@@ -66,13 +57,10 @@ class BotPlayer(Player):
         if len(keys) > 0:
             if self.next_build == 0:
                 if rc.get_balance(rc.get_ally_team()) >= 1800:
-                    (k,(x,y)) = best_coverage(self, self.map, 10)
-                    if self.bt_test((x,y)):
-                        self.remove_dist_dict_item(k, (x,y))
-                    elif (rc.can_build_tower(TowerType.BOMBER, x, y)):
+                    (k,(x,y)) = best_coverage(self, self.map, 2)
+                    if (rc.can_build_tower(TowerType.BOMBER, x, y)):
                         rc.build_tower(TowerType.BOMBER, x, y)
                         self.remove_dist_dict_item(k,(x,y))
-                        self.bt.append((x,y))
                         self.iter_build()
             if self.next_build == 1:
                 k = None
