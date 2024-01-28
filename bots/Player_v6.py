@@ -32,14 +32,27 @@ class BotPlayer(Player):
         self.spawn_dist = [3, 6, 7]
         self.n_towers = []
         self.sold_solar = False
-        
-
+        self.debris_costs = dict()
+    
+    def precompute_debris(self, rc: RobotController):
+        for i in range(45,940):
+            self.debris_costs[rc.get_debris_cost(1,i)] = (1,i)
+            
+    def get_debris(self, c):
+        keys = list(self.debris_costs.keys())
+        for i in range(len(keys)):
+            if c < keys[i]:
+                return self.debris_costs[keys[i-1]]
+        return 0
+                
     def iter_build(self):
         self.next_build += 1
         self.next_build = self.next_build % (self.spawn_dist[-1] + 1)
 
     
     def play_turn(self, rc: RobotController):
+        if (rc.get_turn() <= 1):
+            self.precompute_debris(rc)
         self.build_towers(rc)
         self.towers_attack(rc)
         '''d_cool = 1
@@ -54,7 +67,7 @@ class BotPlayer(Player):
 
     def build_towers(self, rc: RobotController):
         #available = self.getSurroundingPath(rc, self.map.path)
-        for i in range(1 + rc.get_turn()//1000):
+        for i in range(min(1 + rc.get_turn()//1000, 4)):
             keys = sorted(list(self.dist_dict.keys()))
             added = False
             if len(keys) > 0:
@@ -126,7 +139,16 @@ class BotPlayer(Player):
                             else:
                                 self.iter_build()
             else:
+                print(f'{len(keys)}')
                 self.update_towers(rc, rc.get_towers(rc.get_ally_team()))
+        
+        keys = sorted(list(self.dist_dict.keys()))
+        if len(keys) > 0:   
+            (cooldown, health) = self.get_debris(rc.get_balance(rc.get_ally_team())-4000)
+        else:
+            (cooldown, health) = self.get_debris(rc.get_balance(rc.get_ally_team()))
+        if rc.can_send_debris(cooldown,health):
+            rc.send_debris(1,health)
         
     def towers_attack(self, rc: RobotController):
         towers = rc.get_towers(rc.get_ally_team())

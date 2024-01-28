@@ -41,7 +41,7 @@ def coverage(map,
     path = map.path
     acc = 0
     for loc in path:
-        acc += 1 if distance(loc, point) <= (dist**2) else 0     
+        acc += 1 if distance(loc, point) <= dist else 0     
     return acc
 
 def best_coverage(p, map,
